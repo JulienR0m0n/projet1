@@ -1,0 +1,424 @@
+#include <iostream>
+#include <string>
+#include <iomanip>
+#include <cmath>
+#include <limits>
+
+using namespace std;
+    
+    // Auxiliary functions
+    double f(double Amount, double Years, double anInterestRate, double Instalment) 
+    {
+        float temp;
+        temp = anInterestRate*(1+ (1/((pow(1+anInterestRate, Years)-1)))) - (Instalment / Amount);
+        return temp;
+        } // Function f(PV, n, r, PMT) = r * ( 1 + ( 1 / ( ( 1 + r) ^ n - 1 ) - PMT / PV 
+
+    double CheckAmount()
+    {
+        double n;
+        cin >> n;
+        while ((cin.fail()) || (n<0))
+        {
+            cin.clear();
+            cin.ignore();
+            cout << "Not a valid Input. Please try again (positive): ";
+            cin >> n;
+            cout<<"\n";
+        }
+        return n;
+    } // Safeguard for Amount
+    
+    double CheckInstalment()
+    {
+        double n;
+        cin >> n;
+        while ((cin.fail()) || (n<0))
+        {
+            cin.clear();
+            cin.ignore();
+            cout << "Please enter an appropriate Instalment amount (positive and inferior to Loan Amount) : ";
+            cin >> n;
+            cout<<"\n";
+        }
+        return n;
+    } // Safeguard for Instalment
+    
+    string CheckSchedule()
+    {
+        double n;
+        string F;
+        cout << "Please enter an appropriate Reimbursment Schedule. \n 1 for Annually, 2 for Semi-Annually, 3 for Quarterly and 4 for Monthly : ";
+        cin >> n;
+        n=floor ( n);
+        if (n==1)
+	    {
+	        F ="Annually";
+	    }
+	    else if (n==2)
+	    {
+	        F ="Semi-Annually";
+	    }
+	    else if (n==3) 
+	    {
+	        F ="Quarterly";
+	    }
+	    else if (n==4)
+	    {
+	        F ="Monthly";
+	    }
+	    else
+	    {     
+            while ((cin.fail()) || n<0 || n>4)
+            {
+                cin.clear();
+                cin.ignore();
+                cout << "This is a wrong schedule ! \n Enter 1 for Annually, 2 for Semi-Annually, 3 for Quarterly and 4 for Monthly : " ;
+                cin >> n;
+                cout<<"\n";
+                {
+                    if (n==1)
+            	    {
+            	        F ="Annually";
+            	    }
+            	    else if (n==2)
+            	    {
+            	        F ="Semi-Annually";
+            	    }
+            	    else if (n==3) 
+            	    {
+            	        F ="Quarterly";
+            	    }
+            	    else if (n==4)
+            	    {
+            	        F ="Monthly";
+            	    }
+    	        }
+            }
+	    }
+	    return F;
+    } // Safeguard for Schedule
+
+    double CheckIR()
+    {
+        double n;
+        cin >> n;
+        while ((cin.fail()) || (n < 0) || (n > 2))
+        {
+            cin.clear();
+            cin.ignore();
+            cout << "Please enter an appropriate ANNUAL Interest Rate (between 0 (0%) and 2 (200%)) : ";
+            cin >> n;
+            cout<<"\n";
+        }
+        return n;
+    } // Safeguard for annual Interest rate
+
+    double CheckMonth()
+    {
+        double n;
+        cin >> n;
+        while ((cin.fail()) || (n < 1) || (n > 12))
+        {
+            cin.clear();
+            cin.ignore();
+            cout << "Please enter an appropriate starting Month (between 1(=January) and 12(=December)) : ";
+            cin >> n;
+            cout<<"\n";
+            
+        }
+        return n;
+    } // Safeguard for starting Month
+    
+    double CheckYear()
+    {
+        double n;
+        cin >> n;
+        while ((cin.fail()) || (n < 0))
+        {
+            cin.clear();
+            cin.ignore();
+            cout << "Please enter an appropriate starting Year (positive) : ";
+            cin >> n;
+            cout<<"\n";
+        }
+        return floor(n);
+    } // Safeguard for starting Year
+        
+    double ComputPeriodMultiplier(string Frequency)
+    {
+    double n; 
+    
+        
+    	    {   
+        	    if (Frequency=="Annually" )
+        	    {
+        	        n = 1.00 ;    	        
+        	    }
+        	    else if (Frequency=="Semi-Annually")
+        	    {
+        	        n = 2.00;
+        	    }
+        	    else if (Frequency=="Quarterly")
+        	    {
+        	        n = 4.00 ;
+        	    }
+        	    else if (Frequency=="Monthly")
+        	    {
+        	        n = 12.00;
+        	    } 
+        	    
+            	return n ;
+    	    } 
+    	    
+} // Compute the period multiplier (12, 3, 2 or 1)
+               
+    int PeriodCal(string Frequency, double Years) 
+    {
+        double NbOfPeriod;
+        
+        if (Frequency=="Monthly") {
+    	    NbOfPeriod = 12 * Years ;
+    	    
+    	} else if (Frequency=="Quarterly") {
+    	    NbOfPeriod = 4 * Years;
+    	    
+    	} else if (Frequency=="Semi-Annually") {
+    	    NbOfPeriod = 2 * Years;
+    	   
+    	} else if (Frequency=="Annually") {
+    	   NbOfPeriod = 1 * Years;
+    	   
+    	} else {
+    	    cout << "ERROR : The Reimbursment Schedule was wrongly computed. Try Again." << endl;
+    	   
+    	}
+    	return NbOfPeriod;
+    } // Compute the number of periods
+    
+    double binSearch(double Amount, double NbOfPeriod,double Instalment)
+    {
+        double a=0.000001, b=2, precision=0.0001,m, fm, fa,fb;
+        
+        fa = f(Amount, NbOfPeriod, a,  Instalment);
+        fb = f(Amount, NbOfPeriod, b,  Instalment);
+    
+            while ( b-a > precision )
+            {
+                m = (b + a) / 2;
+                fm = f(Amount, NbOfPeriod, m,  Instalment);
+                if (fm == 0) break;
+        
+                if (fa * fm < 0) 
+                {
+                    b = m;
+                    fb = fm;
+                } 
+                else
+                {
+                    a = m;
+                    fa = fm;
+                }
+            }
+            return m ;
+    } // Function to find missing rate by a Binary Search Method
+    
+    void Display(double Amount, double Years, double anInterestRate, double Instalment, double NbOfPeriod, string Frequency, double startMonth, double startYear)
+    {
+        
+            cout <<"\n      Inputs :"<< endl;
+            cout <<"___________________________"<< endl;
+            cout <<"| Present Value : $"<< Amount  << endl;
+            cout <<"| Frequency : "<< Frequency << endl;
+            cout <<"| # of periods : "<< NbOfPeriod << endl;
+            cout <<"| Interest Rate : "<< anInterestRate*100 << "%"<< endl;
+            cout <<"| Instalments : $"<< Instalment << endl;
+            cout <<"| Start Date : "<< startMonth <<"/"<< startYear<< endl;
+            cout <<"|__________________________" ;
+    }
+    
+    void Display2(double periodNumber, double Amount, double periodInterestRate, double Instalment, double startMonth, double startYear, double principal, double periodInterest, double closingBalance)
+    {
+        cout<< periodNumber <<"  |   "<<startMonth <<"/"<< startYear << "  |   "<< Amount <<"  |   "<< principal << "  |  "<< periodInterest << "  |  "<< periodInterestRate * 100 << "%" << "  |   "<< Instalment << "   |  "<< closingBalance  <<"   |"<< endl;
+    }
+ 
+	    
+    void Inputs()
+    {
+    // Declaring Variables
+        double Amount, Instalment, NbOfPeriod, closingBalance, periodMultiplier = 0.00, anInterestRate, periodInterestRate ;
+        double periodNumber, periodInterest, principal,Years, startMonth, startYear ;   
+        string Frequency;   
+        
+    // Inputs  
+        cout << "We are entering the values we need ! \nOnly three out of Amount, Number of years, IR and Instalments are need. \n If you don't want to provide data for one of theses variables, enter 0."<< endl;
+        cout << "\nPlease provide Loan Amount :";
+        Amount = CheckAmount();        
+        cout << "Please provide Number of Years :";
+        Years = CheckYear() ;
+        cout << "Please provide ANNUAL Interest Rate (0.05 for 5%) :";
+        anInterestRate = CheckIR() ;
+    	Frequency = CheckSchedule();
+    	periodMultiplier = ComputPeriodMultiplier(Frequency);	 
+        cout << "Please provide Instalments amount :";
+        Instalment = CheckInstalment();
+            while (Instalment * periodMultiplier> Amount)
+            {
+                cout << "Please provide correct Instalments amount :";
+                Instalment = CheckInstalment();
+            }
+        cout << "Please provide the starting month (mm/yyyy format) :";
+        startMonth = CheckMonth();
+        cout << "Please provide the starting year (mm/yyyy format) :";
+        startYear = CheckYear();
+          	    
+    // Find Instalment, Amount, n or r if one is missing
+    {  
+        NbOfPeriod = PeriodCal(Frequency, Years);
+    	if ((Instalment==0) & (Amount!=0) & (anInterestRate!=0) & (Years!=0)) 
+        {
+            Instalment=Amount*anInterestRate*(1+(1/(pow((1+anInterestRate),Years) -1)));
+        } 
+        else if ((Instalment!=0) & (Amount==0) & (anInterestRate!=0) & (Years!=0)) 
+        {
+            Amount=(Instalment/anInterestRate)*(pow((1+anInterestRate),Years) -1)/(pow((1+anInterestRate),Years));
+        } 
+        else if ((Instalment!=0) & (Amount!=0) & (anInterestRate!=0) & (anInterestRate>0) & (Years==0)) 
+        {
+            Years=log(1 + 1/(((Instalment * periodMultiplier)/(Amount*anInterestRate))-1))/log(1+anInterestRate);
+            NbOfPeriod = PeriodCal(Frequency, Years);
+        } 
+        else if ((Instalment!=0) & (Amount!=0) & (anInterestRate==0) & (Years!=0)) 
+        {
+            periodInterestRate = binSearch(Amount, NbOfPeriod, Instalment);
+            anInterestRate = pow(1+periodInterestRate,periodMultiplier)-1;
+        } 
+        Display(Amount,Years, anInterestRate, Instalment,NbOfPeriod, Frequency, startMonth, startYear);
+    
+        {
+        // Computing periodic Interest Rate    	
+        periodInterestRate=pow((1.00 + anInterestRate), 1.00/periodMultiplier)-1.00 ;
+        
+        if (principal < 0)
+            {
+                cout<< " ERROR : the annual interest rate is too important. Modify one of the inputs." ;
+                cout << "\nPlease provide Present Value :";
+                Amount = CheckAmount();
+                cout << "Please provide Number of Years :";
+                Years = CheckYear();
+                cout << "Please provide ANNUAL Interest Rate :";
+                anInterestRate = CheckIR();
+                cout << "Please provide Instalments amount :";
+                Instalment = CheckInstalment();
+                principal = Instalment - Amount*periodInterestRate ;    
+            }    
+            periodNumber=1 ; 
+        	principal = Instalment - Amount*periodInterestRate ;
+        	closingBalance = Amount -principal;
+            periodInterest = Amount*periodInterestRate ;
+
+        } // Initializing Variables 
+        
+        cout<< "\n| # |"<< " period |"<< " Op. Balance |"<< "  interest |"<< "period IR|"<< "  instalment |"<< " closing Balance |" << endl;
+                
+        {
+                while(Amount > 0 ) 
+                {
+                    if (Amount - Instalment <= 0)
+                    {
+                        principal = Amount ;
+                        
+                        Instalment = Amount*periodInterestRate + principal ;
+                        closingBalance = Amount - principal ;
+                        
+                        Display2( periodNumber,  Amount,  periodInterestRate,  Instalment,  startMonth,  startYear,  principal,  periodInterest, closingBalance);
+                        closingBalance = Amount - principal ;
+                        Amount = closingBalance ;
+                        periodInterest = Amount*periodInterestRate ;
+                        principal = Instalment - periodInterest ;
+                        closingBalance=Amount-principal;  
+                    }
+                    else 
+                    {
+                        Display2( periodNumber,  Amount,  periodInterestRate,  Instalment,  startMonth,  startYear,  principal,  periodInterest, closingBalance);
+                        {   
+                            if (Frequency=="Monthly") 
+                            {
+                                if (startMonth+1 > 12)
+                                {
+                                    startMonth = (startMonth + 1 ) - 12 ;
+                                    startYear++;
+                                } 
+                                else 
+                                { 
+                                    startMonth++;
+                                    }
+                            }
+                            else if (Frequency=="Quarterly") 
+                            {
+                                if (startMonth+3 > 12)
+                                {
+                                    startMonth = (startMonth + 3 ) - 12 ;
+                                    startYear++;
+                                } 
+                                else 
+                                { 
+                                    startMonth=startMonth+3;
+                                }
+                            }
+                            else if (Frequency=="Semi-Annually") 
+                            {
+                                if (startMonth+6 > 12) 
+                                {
+                                    startMonth = (startMonth + 6 ) - 12 ;
+                                    startYear++;
+                                } 
+                                else 
+                                { 
+                                    startMonth=startMonth+6;
+                                }
+                            }
+                            else if (Frequency=="Annually") 
+                            {
+                                startYear++;
+                            }
+                            else
+                            {
+                                cout << "ERROR : The Reimbursment Schedule was wrongly computed. Try Again." << endl;
+                            }
+                        } // Change the date
+                        closingBalance = Amount - principal ;
+                        Amount = closingBalance ;
+                        periodInterest = Amount*periodInterestRate ;
+                        principal = Instalment - periodInterest ;
+                        closingBalance=Amount-principal; 
+                        
+                    }
+                    periodNumber++;
+                    
+                    
+                }
+                if (periodNumber < NbOfPeriod)
+                    {
+                        cout << "\nThe loan can be reimbursed before "<<Years<<" Years."<< endl;
+                    }
+                    else if (periodNumber > NbOfPeriod)
+                    {
+                        cout <<"\nThe loan cannot be reimbursed in "<<Years<<" Years. It can be reimbursed in "<< periodNumber/periodMultiplier <<" Years."<< endl;
+                    }
+            
+    } // While loop displaying the table
+     }
+     
+    }
+
+int main() 
+{
+    Inputs();
+    return 0;
+}
+
+
+	
+
+	
