@@ -13,10 +13,89 @@ using namespace std;
         temp = anInterestRate*(1+ (1/((pow(1+anInterestRate, Years)-1)))) - (Instalment / Amount);
         return temp;
         } // Function f(PV, n, r, PMT) = r * ( 1 + ( 1 / ( ( 1 + r) ^ n - 1 ) - PMT / PV 
-
+        
+    double binSearch(double Amount, double NbOfPeriod,double Instalment)
+    {
+        double a=0.000001, b=2, precision=0.0001,m, fm, fa,fb;
+        
+        fa = f(Amount, NbOfPeriod, a,  Instalment);
+        fb = f(Amount, NbOfPeriod, b,  Instalment);
+    
+            while ( b-a > precision )
+            {
+                m = (b + a) / 2;
+                fm = f(Amount, NbOfPeriod, m,  Instalment);
+                if (fm == 0) break;
+        
+                if (fa * fm < 0) 
+                {
+                    b = m;
+                    fb = fm;
+                } 
+                else
+                {
+                    a = m;
+                    fa = fm;
+                }
+            }
+            return m ;
+    } // Function to find missing rate by a Binary Search Method
+        
+    double whichMiss()
+    {
+        double ans;
+        cout << "Only three out of Amount, Number of years, IR and Instalments can be entered. Which one you DON'T want to enter ? \n 1 for Amount, 2 for Number of Years, 3 for the annual Interest Rate and 4 for periodic Instalment "<< endl;
+        cin  >> ans;
+        ans = floor (ans);
+        while ((cin.fail()) || (ans<1) || (ans >4))
+        {
+            cin.clear();
+            cin.ignore();
+            cout << "Not a valid Input. Please try again (positive): ";
+            cin >> ans;
+            cout<<"\n";
+        }
+            return ans;
+        }
+    
+    double findAmount(double Years, double anInterestRate, double Instalment)
+    {
+        double Amount;
+        Amount=(Instalment/anInterestRate)*(pow((1+anInterestRate),Years) -1)/(pow((1+anInterestRate),Years)) ;
+        cout << "Given the inputs given, the loanable Amount is :" << Amount << " €.";
+        return Amount;
+    }
+    
+    double findYears(double Amount, double anInterestRate, double Instalment, double periodMultiplier)
+    {
+        double Years;
+        Years=log(1 + 1/((Instalment*periodMultiplier/(Amount*anInterestRate))-1))/log(1+anInterestRate); 
+        cout << "Given the inputs given, the Loan can be reimbursed in :" << floor(Years*periodMultiplier)/periodMultiplier << " years.";
+        return Years;
+    }
+    
+    double findAnInterestRate(double Amount, double Years, double Instalment, double periodMultiplier) // calculate periodMultiplier BEFORE
+    {
+        double periodInterestRate, anInterestRate, NbOfPeriod;
+        NbOfPeriod = Years * periodMultiplier;
+        periodInterestRate = binSearch(Amount, NbOfPeriod, Instalment);
+        anInterestRate = periodInterestRate * periodMultiplier;
+        cout << "Given the inputs given, the annual Interest Rate is " << anInterestRate << " %.";
+        return anInterestRate;
+    }
+    
+    double findInstalment(double Amount, double Years, double anInterestRate, double periodMultiplier) 
+    {
+        double Instalment;
+        Instalment=(Amount*anInterestRate*(1+(1/(pow((1+anInterestRate),Years) -1))))/periodMultiplier;
+        cout << "Given the inputs given, the periodic Instalment is " << Instalment << " €.";
+        return Instalment;
+    }
+    
     double CheckAmount()
     {
         double n;
+        cout << "\nPlease provide Loan Amount :";
         cin >> n;
         while ((cin.fail()) || (n<0))
         {
@@ -24,24 +103,25 @@ using namespace std;
             cin.ignore();
             cout << "Not a valid Input. Please try again (positive): ";
             cin >> n;
-            cout<<"\n";
         }
         return n;
     } // Safeguard for Amount
     
     double CheckInstalment()
     {
-        double n;
+        double n, maxInstalment ;
+        cout << "\nPlease provide periodic Instalment Amount :";
         cin >> n;
-        while ((cin.fail()) || (n<0))
+        /*maxInstalment = (1+(anInterestRate / periodMultiplier))*Amount ;*/
+        while ((cin.fail()) || (n<0) /*|| (n> maxInstalment)*/)
         {
             cin.clear();
             cin.ignore();
-            cout << "Please enter an appropriate Instalment amount (positive and inferior to Loan Amount) : ";
+            cout << "Please enter an appropriate periodic Instalment amount (positive and inferior to Loan Amount) : ";
             cin >> n;
-            cout<<"\n";
         }
         return n;
+
     } // Safeguard for Instalment
     
     string CheckSchedule()
@@ -102,6 +182,7 @@ using namespace std;
     double CheckIR()
     {
         double n;
+        cout << "\nPlease provide ANNUAL Interest Rate (0.05 for 5%, between 0% and 100%) :";
         cin >> n;
         while ((cin.fail()) || (n < 0) || (n > 2))
         {
@@ -109,14 +190,29 @@ using namespace std;
             cin.ignore();
             cout << "Please enter an appropriate ANNUAL Interest Rate (between 0 (0%) and 2 (200%)) : ";
             cin >> n;
-            cout<<"\n";
         }
         return n;
     } // Safeguard for annual Interest rate
+    
+    double CheckYears()
+    {
+        double n;
+        cout << "\nPlease provide number of Years (18,5 years equals to 18y and 6 months) :";
+        cin >> n;
+        while ((cin.fail()) || (n < 0))
+        {
+            cin.clear();
+            cin.ignore();
+            cout << "Please enter an appropriate number of Years : ";
+            cin >> n;
+        }
+        return n;
+    }
 
     double CheckMonth()
     {
         double n;
+        cout << "\nPlease provide start Month (between 1(=January) and 12(=December)):";
         cin >> n;
         while ((cin.fail()) || (n < 1) || (n > 12))
         {
@@ -130,9 +226,10 @@ using namespace std;
         return n;
     } // Safeguard for starting Month
     
-    double CheckYear()
+    double CheckStartYear()
     {
         double n;
+        cout << "\nPlease provide start Year :";
         cin >> n;
         while ((cin.fail()) || (n < 0))
         {
@@ -140,7 +237,6 @@ using namespace std;
             cin.ignore();
             cout << "Please enter an appropriate starting Year (positive) : ";
             cin >> n;
-            cout<<"\n";
         }
         return floor(n);
     } // Safeguard for starting Year
@@ -173,56 +269,6 @@ using namespace std;
     	    
 } // Compute the period multiplier (12, 3, 2 or 1)
                
-    int PeriodCal(string Frequency, double Years) 
-    {
-        double NbOfPeriod;
-        
-        if (Frequency=="Monthly") {
-    	    NbOfPeriod = 12 * Years ;
-    	    
-    	} else if (Frequency=="Quarterly") {
-    	    NbOfPeriod = 4 * Years;
-    	    
-    	} else if (Frequency=="Semi-Annually") {
-    	    NbOfPeriod = 2 * Years;
-    	   
-    	} else if (Frequency=="Annually") {
-    	   NbOfPeriod = 1 * Years;
-    	   
-    	} else {
-    	    cout << "ERROR : The Reimbursment Schedule was wrongly computed. Try Again." << endl;
-    	   
-    	}
-    	return NbOfPeriod;
-    } // Compute the number of periods
-    
-    double binSearch(double Amount, double NbOfPeriod,double Instalment)
-    {
-        double a=0.000001, b=2, precision=0.0001,m, fm, fa,fb;
-        
-        fa = f(Amount, NbOfPeriod, a,  Instalment);
-        fb = f(Amount, NbOfPeriod, b,  Instalment);
-    
-            while ( b-a > precision )
-            {
-                m = (b + a) / 2;
-                fm = f(Amount, NbOfPeriod, m,  Instalment);
-                if (fm == 0) break;
-        
-                if (fa * fm < 0) 
-                {
-                    b = m;
-                    fb = fm;
-                } 
-                else
-                {
-                    a = m;
-                    fa = fm;
-                }
-            }
-            return m ;
-    } // Function to find missing rate by a Binary Search Method
-    
     void Display(double Amount, double Years, double anInterestRate, double Instalment, double NbOfPeriod, string Frequency, double startMonth, double startYear)
     {
         
@@ -247,65 +293,59 @@ using namespace std;
     {
     // Declaring Variables
         double Amount, Instalment, NbOfPeriod, closingBalance, periodMultiplier = 0.00, anInterestRate, periodInterestRate ;
-        double periodNumber, periodInterest, principal,Years, startMonth, startYear ;   
+        double periodNumber, periodInterest, principal,Years, startMonth, startYear, temp ;   
         string Frequency;   
         
     // Inputs  
-        cout << "We are entering the values we need ! \nOnly three out of Amount, Number of years, IR and Instalments are need. \n If you don't want to provide data for one of theses variables, enter 0."<< endl;
-        cout << "\nPlease provide Loan Amount :";
-        Amount = CheckAmount();        
-        cout << "Please provide Number of Years :";
-        Years = CheckYear() ;
-        cout << "Please provide ANNUAL Interest Rate (0.05 for 5%) :";
-        anInterestRate = CheckIR() ;
-    	Frequency = CheckSchedule();
-    	periodMultiplier = ComputPeriodMultiplier(Frequency);	 
-        cout << "Please provide Instalments amount :";
-        Instalment = CheckInstalment();
-            while (Instalment * periodMultiplier> Amount)
-            {
-                cout << "Please provide correct Instalments amount :";
-                Instalment = CheckInstalment();
-            }
-        cout << "Please provide the starting month (mm/yyyy format) :";
-        startMonth = CheckMonth();
-        cout << "Please provide the starting year (mm/yyyy format) :";
-        startYear = CheckYear();
-          	    
-    // Find Instalment, Amount, n or r if one is missing
-    {  
-        NbOfPeriod = PeriodCal(Frequency, Years);
-    	if ((Instalment==0) & (Amount!=0) & (anInterestRate!=0) & (Years!=0)) 
-        {
-            Instalment=Amount*anInterestRate*(1+(1/(pow((1+anInterestRate),Years) -1)));
-        } 
-        else if ((Instalment!=0) & (Amount==0) & (anInterestRate!=0) & (Years!=0)) 
-        {
-            Amount=(Instalment/anInterestRate)*(pow((1+anInterestRate),Years) -1)/(pow((1+anInterestRate),Years));
-        } 
-        else if ((Instalment!=0) & (Amount!=0) & (anInterestRate!=0) & (anInterestRate>0) & (Years==0)) 
-        {
-            Years=log(1 + 1/(((Instalment * periodMultiplier)/(Amount*anInterestRate))-1))/log(1+anInterestRate);
-            NbOfPeriod = PeriodCal(Frequency, Years);
-        } 
-        else if ((Instalment!=0) & (Amount!=0) & (anInterestRate==0) & (Years!=0)) 
-        {
-            periodInterestRate = binSearch(Amount, NbOfPeriod, Instalment);
-            anInterestRate = pow(1+periodInterestRate,periodMultiplier)-1;
-        } 
-        Display(Amount,Years, anInterestRate, Instalment,NbOfPeriod, Frequency, startMonth, startYear);
-    
-        {
-        // Computing periodic Interest Rate    	
-        periodInterestRate=pow((1.00 + anInterestRate), 1.00/periodMultiplier)-1.00 ;
+        cout << "We are entering the values we need ! "<< endl;
+        Frequency = CheckSchedule();
+        periodMultiplier = ComputPeriodMultiplier(Frequency);
+        temp = whichMiss();
         
+        if (temp == 1)
+        {
+            Years = CheckYears() ;
+            anInterestRate = CheckIR();
+            Instalment = CheckInstalment();
+            Amount = findAmount(Years, anInterestRate, Instalment);
+        }
+        else if (temp == 2)
+        {
+            Amount = CheckAmount();        
+            anInterestRate = CheckIR();
+            Instalment = CheckInstalment();
+            Years = findYears(Amount,anInterestRate, Instalment, periodMultiplier);
+        }
+        else if (temp == 3)
+        {
+            Amount = CheckAmount();        
+            Years = CheckYears();
+            Instalment = CheckInstalment();
+            anInterestRate = findAnInterestRate(Amount, Years, Instalment, periodMultiplier);
+        }
+        else if (temp == 4)
+        {
+            Amount = CheckAmount();        
+            Years = CheckYears() ;
+            anInterestRate = CheckIR();
+            Instalment = findInstalment(Amount, Years, anInterestRate, periodMultiplier);
+        }
+        
+        startMonth = CheckMonth();
+        startYear = CheckStartYear();
+        NbOfPeriod = floor(Years * periodMultiplier);
+        Display(Amount, Years, anInterestRate, Instalment, NbOfPeriod, Frequency, startMonth, startYear);
+        periodInterestRate=anInterestRate/periodMultiplier ;
+        
+        
+
         if (principal < 0)
             {
                 cout<< " ERROR : the annual interest rate is too important. Modify one of the inputs." ;
                 cout << "\nPlease provide Present Value :";
                 Amount = CheckAmount();
                 cout << "Please provide Number of Years :";
-                Years = CheckYear();
+                Years = CheckYears();
                 cout << "Please provide ANNUAL Interest Rate :";
                 anInterestRate = CheckIR();
                 cout << "Please provide Instalments amount :";
@@ -317,11 +357,10 @@ using namespace std;
         	closingBalance = Amount -principal;
             periodInterest = Amount*periodInterestRate ;
 
-        } // Initializing Variables 
+         // Initializing Variables 
         
-        cout<< "\n| # |"<< " period |"<< " Op. Balance |"<< "  interest |"<< "period IR|"<< "  instalment |"<< " closing Balance |" << endl;
+        cout<< "\n| # |"<< " period |"<< " Op. Balance |"<< "  principal |"<<" interest |"<< "period IR|"<< "  instalment |"<< " closing Balance |" << endl;
                 
-        {
                 while(Amount > 0 ) 
                 {
                     if (Amount - Instalment <= 0)
@@ -408,9 +447,8 @@ using namespace std;
                     }
             
     } // While loop displaying the table
-     }
+
      
-    }
 
 int main() 
 {
@@ -418,7 +456,3 @@ int main()
     return 0;
 }
 
-
-	
-
-	
