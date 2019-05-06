@@ -308,17 +308,17 @@ using namespace std;
         if (Amount*anInterestRate > Instalment * periodMultiplier)
         {
             cout <<"The interests cannot be larger dans the Instalments ! Try again."<<endl;
-            return 0;
+            return 1;
         }
         if (anInterestRate>1)
         {
             cout <<"The annual is superior than 100%. Try again !"<<endl;
-            return 0;
+            return 1;
         }
         if (Years > 100)
         {
             cout << "It would took more than 100 years to reimburse this Loan. Try again ! "<< endl;
-            return 0;
+            return 1;
         }
     }
 	    
@@ -344,7 +344,7 @@ using namespace std;
             Instalment = CheckInstalment();
             Amount = findAmount(Years, anInterestRate, Instalment);
             temp2 = consistency(Amount,  Years,  anInterestRate,  Instalment, periodMultiplier);
-            } while(temp2==0);
+            } while(temp2==1);
         }
         else if (temp == 2)
         {
@@ -355,7 +355,7 @@ using namespace std;
             Instalment = CheckInstalment();
             Years = findYears(Amount,anInterestRate, Instalment, periodMultiplier);
             temp2 = consistency(Amount,  Years,  anInterestRate,  Instalment, periodMultiplier);
-            } while(temp2==0);
+            } while(temp2==1);
         }
         else if (temp == 3)
         {
@@ -366,7 +366,7 @@ using namespace std;
             Instalment = CheckInstalment();
             anInterestRate = findAnInterestRate(Amount, Years, Instalment, periodMultiplier);
             temp2 = consistency(Amount,  Years,  anInterestRate,  Instalment, periodMultiplier);
-            } while(temp2==0);
+            } while(temp2==1);
         }
         else if (temp == 4)
         {
@@ -377,7 +377,7 @@ using namespace std;
             anInterestRate = CheckIR();
             Instalment = findInstalment(Amount, Years, anInterestRate, periodMultiplier);
             temp2 = consistency(Amount,  Years,  anInterestRate,  Instalment, periodMultiplier);
-            } while(temp2==0);
+            } while(temp2==1);
         }
         
         startMonth = CheckMonth();
