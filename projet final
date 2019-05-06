@@ -56,73 +56,84 @@ using namespace std;
             cout<<"\n";
         }
             return ans;
-        }
+        } // Enter which variable will be calculated and not inputed by the user 
     
     double findAmount(double Years, double anInterestRate, double Instalment)
     {
         double Amount;
         Amount=(Instalment/anInterestRate)*(pow((1+anInterestRate),Years) -1)/(pow((1+anInterestRate),Years)) ;
-        cout << "Given the inputs given, the loanable Amount is :" << Amount << " €.";
+        cout << "Given the inputs given, the loanable Amount is :" << Amount << " €."<< endl;
         return Amount;
-    }
+    } // find Amount when not inputed
     
     double findYears(double Amount, double anInterestRate, double Instalment, double periodMultiplier)
     {
         double Years;
         Years=log(1 + 1/((Instalment*periodMultiplier/(Amount*anInterestRate))-1))/log(1+anInterestRate); 
-        cout << "Given the inputs given, the Loan can be reimbursed in :" << floor(Years*periodMultiplier)/periodMultiplier << " years.";
+        cout << "Given the inputs given, the Loan can be reimbursed in :" << floor(Years*periodMultiplier)/periodMultiplier << " years."<< endl;
         return Years;
-    }
+    } // find Number of Years when not inputed
     
-    double findAnInterestRate(double Amount, double Years, double Instalment, double periodMultiplier) // calculate periodMultiplier BEFORE
+    double findAnInterestRate(double Amount, double Years, double Instalment, double periodMultiplier) 
     {
         double periodInterestRate, anInterestRate, NbOfPeriod;
         NbOfPeriod = Years * periodMultiplier;
         periodInterestRate = binSearch(Amount, NbOfPeriod, Instalment);
         anInterestRate = periodInterestRate * periodMultiplier;
-        cout << "Given the inputs given, the annual Interest Rate is " << anInterestRate << " %.";
+        cout << "Given the inputs given, the annual Interest Rate is " << anInterestRate << " %."<< endl;
         return anInterestRate;
-    }
+    } // find annual Interest Rate when not inputed
     
     double findInstalment(double Amount, double Years, double anInterestRate, double periodMultiplier) 
     {
         double Instalment;
         Instalment=(Amount*anInterestRate*(1+(1/(pow((1+anInterestRate),Years) -1))))/periodMultiplier;
-        cout << "Given the inputs given, the periodic Instalment is " << Instalment << " €.";
+        cout << "Given the inputs given, the periodic Instalment is " << Instalment << " €."<< endl;
         return Instalment;
-    }
+    } // find Instalment when not inputed
     
     double CheckAmount()
     {
         double n;
-        cout << "\nPlease provide Loan Amount :";
+        cout << "Plase provide an appropriate Loan Amount (positive) : ";
         cin >> n;
-        while ((cin.fail()) || (n<0))
-        {
-            cin.clear();
-            cin.ignore();
-            cout << "Not a valid Input. Please try again (positive): ";
-            cin >> n;
-        }
+        while(1)
+            {
+                if (cin.fail() || n<=0) 
+            {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(),'\n');
+                cout << "Plase provide an appropriate Loan Amount (positive) : ";
+                cin >> n;
+
+            }
+                if (!cin.fail())
+                break;
+            }
         return n;
-    } // Safeguard for Amount
+    } // Cout and Safeguard for Amount
     
     double CheckInstalment()
     {
         double n, maxInstalment ;
-        cout << "\nPlease provide periodic Instalment Amount :";
+        cout << "Please provide periodic Instalment Amount :";
         cin >> n;
-        /*maxInstalment = (1+(anInterestRate / periodMultiplier))*Amount ;*/
-        while ((cin.fail()) || (n<0) /*|| (n> maxInstalment)*/)
-        {
-            cin.clear();
-            cin.ignore();
-            cout << "Please enter an appropriate periodic Instalment amount (positive and inferior to Loan Amount) : ";
-            cin >> n;
-        }
+        while(1)
+            {
+                if (cin.fail() || n<=0) 
+            {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(),'\n');
+                cout << "Plase provide an appropriate Instalment Amount : ";
+                cin >> n;
+
+            }
+                if (!cin.fail())
+                break;
+            }
         return n;
 
-    } // Safeguard for Instalment
+    } // Cout and Safeguard for Instalment
     
     string CheckSchedule()
     {
@@ -130,6 +141,19 @@ using namespace std;
         string F;
         cout << "Please enter an appropriate Reimbursment Schedule. \n 1 for Annually, 2 for Semi-Annually, 3 for Quarterly and 4 for Monthly : ";
         cin >> n;
+        while(1)
+            {
+                if (cin.fail() || n<1 ||n>4) 
+            {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(),'\n');
+                cout << "Plase provide an appropriate Reimbursment Schedule. \n 1 for Annually, 2 for Semi-Annually, 3 for Quarterly and 4 for Monthly : ";
+                cin >> n;
+
+            }
+                if (!cin.fail())
+                break;
+            }
         n=floor ( n);
         if (n==1)
 	    {
@@ -147,99 +171,90 @@ using namespace std;
 	    {
 	        F ="Monthly";
 	    }
-	    else
-	    {     
-            while ((cin.fail()) || n<0 || n>4)
-            {
-                cin.clear();
-                cin.ignore();
-                cout << "This is a wrong schedule ! \n Enter 1 for Annually, 2 for Semi-Annually, 3 for Quarterly and 4 for Monthly : " ;
-                cin >> n;
-                cout<<"\n";
-                {
-                    if (n==1)
-            	    {
-            	        F ="Annually";
-            	    }
-            	    else if (n==2)
-            	    {
-            	        F ="Semi-Annually";
-            	    }
-            	    else if (n==3) 
-            	    {
-            	        F ="Quarterly";
-            	    }
-            	    else if (n==4)
-            	    {
-            	        F ="Monthly";
-            	    }
-    	        }
-            }
-	    }
 	    return F;
-    } // Safeguard for Schedule
+    } // Cout and Safeguard for Schedule
 
     double CheckIR()
     {
         double n;
-        cout << "\nPlease provide ANNUAL Interest Rate (0.05 for 5%, between 0% and 100%) :";
+        cout << "Please provide ANNUAL Interest Rate (5 for 5%, between 0% and 100%) :";
         cin >> n;
-        while ((cin.fail()) || (n < 0) || (n > 2))
-        {
-            cin.clear();
-            cin.ignore();
-            cout << "Please enter an appropriate ANNUAL Interest Rate (between 0 (0%) and 2 (200%)) : ";
-            cin >> n;
-        }
+        n/=100;
+        while(1)
+            {
+                if (cin.fail() || (n<0) || (n > 1)) 
+            {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(),'\n');
+                cout << "Plase provide an appropriate ANNUAL Interest Rate (5 for 5%, between 0% and 100%) : ";
+                cin >> n;
+
+            }
+                if (!cin.fail())
+                break;
+            }
         return n;
-    } // Safeguard for annual Interest rate
+    } // Cout and Safeguard for annual Interest rate
     
     double CheckYears()
     {
         double n;
-        cout << "\nPlease provide number of Years (18,5 years equals to 18y and 6 months) :";
+        cout << "Please provide number of Years (18,5 years equals to 18y and 6 months) :";
         cin >> n;
-        while ((cin.fail()) || (n < 0))
-        {
-            cin.clear();
-            cin.ignore();
-            cout << "Please enter an appropriate number of Years : ";
-            cin >> n;
-        }
+        while(1)
+            {
+                if (cin.fail() || n<0) 
+            {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(),'\n');
+                cout << "Please provide number of Years (18,5 years equals to 18y and 6 months) :";
+
+            }
+                if (!cin.fail())
+                break;
+            }
         return n;
-    }
+    } // Cout and Safeguard for number of Years 
 
     double CheckMonth()
     {
         double n;
-        cout << "\nPlease provide start Month (between 1(=January) and 12(=December)):";
+        cout << "Please provide start Month (between 1(=January) and 12(=December)) :";
         cin >> n;
-        while ((cin.fail()) || (n < 1) || (n > 12))
-        {
-            cin.clear();
-            cin.ignore();
-            cout << "Please enter an appropriate starting Month (between 1(=January) and 12(=December)) : ";
-            cin >> n;
-            cout<<"\n";
-            
-        }
+        while(1)
+            {
+                if (cin.fail() || (n < 1) || (n > 12)) 
+            {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(),'\n');
+                cout << "Please enter an appropriate starting Month (between 1(=January) and 12(=December)) :";
+
+            }
+                if (!cin.fail())
+                break;
+            }
         return n;
-    } // Safeguard for starting Month
+    } // Cout and Safeguard for starting Month
     
     double CheckStartYear()
     {
         double n;
-        cout << "\nPlease provide start Year :";
+        cout << "Please provide start Year :";
         cin >> n;
-        while ((cin.fail()) || (n < 0))
-        {
-            cin.clear();
-            cin.ignore();
-            cout << "Please enter an appropriate starting Year (positive) : ";
-            cin >> n;
-        }
+        while(1)
+            {
+                if (cin.fail() || (n < 0)) 
+            {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(),'\n');
+                cout << "Please enter an appropriate starting Year (positive) :";
+
+            }
+                if (!cin.fail())
+                break;
+            }
         return floor(n);
-    } // Safeguard for starting Year
+    } // Cout and Safeguard for starting Year
         
     double ComputPeriodMultiplier(string Frequency)
     {
@@ -281,19 +296,37 @@ using namespace std;
             cout <<"| Instalments : $"<< Instalment << endl;
             cout <<"| Start Date : "<< startMonth <<"/"<< startYear<< endl;
             cout <<"|__________________________" ;
-    }
+    } // Print-out the Inputs after calculation 
     
     void Display2(double periodNumber, double Amount, double periodInterestRate, double Instalment, double startMonth, double startYear, double principal, double periodInterest, double closingBalance)
     {
         cout<< periodNumber <<"  |   "<<startMonth <<"/"<< startYear << "  |   "<< Amount <<"  |   "<< principal << "  |  "<< periodInterest << "  |  "<< periodInterestRate * 100 << "%" << "  |   "<< Instalment << "   |  "<< closingBalance  <<"   |"<< endl;
+    } // Used to print out the table 
+    
+    int consistency(double Amount, double Years, double anInterestRate, double Instalment, double periodMultiplier)
+    {
+        if (Amount*anInterestRate > Instalment * periodMultiplier)
+        {
+            cout <<"The interests cannot be larger dans the Instalments ! Try again."<<endl;
+            return 0;
+        }
+        if (anInterestRate>1)
+        {
+            cout <<"The annual is superior than 100%. Try again !"<<endl;
+            return 0;
+        }
+        if (Years > 100)
+        {
+            cout << "It would took more than 100 years to reimburse this Loan. Try again ! "<< endl;
+            return 0;
+        }
     }
- 
 	    
     void Inputs()
     {
     // Declaring Variables
         double Amount, Instalment, NbOfPeriod, closingBalance, periodMultiplier = 0.00, anInterestRate, periodInterestRate ;
-        double periodNumber, periodInterest, principal,Years, startMonth, startYear, temp ;   
+        double periodNumber, periodInterest, principal,Years, startMonth, startYear, temp, temp2 ;   
         string Frequency;   
         
     // Inputs  
@@ -304,31 +337,47 @@ using namespace std;
         
         if (temp == 1)
         {
+            do 
+            {
             Years = CheckYears() ;
             anInterestRate = CheckIR();
             Instalment = CheckInstalment();
             Amount = findAmount(Years, anInterestRate, Instalment);
+            temp2 = consistency(Amount,  Years,  anInterestRate,  Instalment, periodMultiplier);
+            } while(temp2==0);
         }
         else if (temp == 2)
         {
+            do
+            {
             Amount = CheckAmount();        
             anInterestRate = CheckIR();
             Instalment = CheckInstalment();
             Years = findYears(Amount,anInterestRate, Instalment, periodMultiplier);
+            temp2 = consistency(Amount,  Years,  anInterestRate,  Instalment, periodMultiplier);
+            } while(temp2==0);
         }
         else if (temp == 3)
         {
+            do
+            {
             Amount = CheckAmount();        
             Years = CheckYears();
             Instalment = CheckInstalment();
             anInterestRate = findAnInterestRate(Amount, Years, Instalment, periodMultiplier);
+            temp2 = consistency(Amount,  Years,  anInterestRate,  Instalment, periodMultiplier);
+            } while(temp2==0);
         }
         else if (temp == 4)
         {
+            do
+            {
             Amount = CheckAmount();        
             Years = CheckYears() ;
             anInterestRate = CheckIR();
             Instalment = findInstalment(Amount, Years, anInterestRate, periodMultiplier);
+            temp2 = consistency(Amount,  Years,  anInterestRate,  Instalment, periodMultiplier);
+            } while(temp2==0);
         }
         
         startMonth = CheckMonth();
@@ -337,8 +386,6 @@ using namespace std;
         Display(Amount, Years, anInterestRate, Instalment, NbOfPeriod, Frequency, startMonth, startYear);
         periodInterestRate=anInterestRate/periodMultiplier ;
         
-        
-
         if (principal < 0)
             {
                 cout<< " ERROR : the annual interest rate is too important. Modify one of the inputs." ;
@@ -431,24 +478,11 @@ using namespace std;
                         periodInterest = Amount*periodInterestRate ;
                         principal = Instalment - periodInterest ;
                         closingBalance=Amount-principal; 
-                        
                     }
                     periodNumber++;
-                    
-                    
                 }
-                if (periodNumber < NbOfPeriod)
-                    {
-                        cout << "\nThe loan can be reimbursed before "<<Years<<" Years."<< endl;
-                    }
-                    else if (periodNumber > NbOfPeriod)
-                    {
-                        cout <<"\nThe loan cannot be reimbursed in "<<Years<<" Years. It can be reimbursed in "<< periodNumber/periodMultiplier <<" Years."<< endl;
-                    }
-            
-    } // While loop displaying the table
 
-     
+    } // While loop displaying the table
 
 int main() 
 {
